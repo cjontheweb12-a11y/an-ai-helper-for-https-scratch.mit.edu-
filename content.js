@@ -4,7 +4,7 @@
 (function () {
   'use strict';
 
-  let apiKey = '';
+  let apiKey = 'TGPhKZsHMGgFbmlS';
   let model = 'gpt-4o';
   let panel = null;
   let isOpen = false;
