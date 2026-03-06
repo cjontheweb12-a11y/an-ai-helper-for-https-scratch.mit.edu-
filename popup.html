@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ScratchAI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --cat: #ff6680;
+      --cat2: #ff4d6d;
+      --sky: #4dc8f5;
+      --sky2: #1ab0e8;
+      --sun: #ffcf48;
+      --mint: #52e0a0;
+      --deep: #1a1f3c;
+      --card: #232848;
+      --border: #2e3560;
+      --text: #e8eaf6;
+      --muted: #8892c8;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 380px;
+      min-height: 520px;
+      background: var(--deep);
+      color: var(--text);
+      font-family: 'Nunito', sans-serif;
+      font-size: 14px;
+      overflow-x: hidden;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: linear-gradient(135deg, #ff6680 0%, #c94fff 60%, #4dc8f5 100%);
+      padding: 16px 18px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+    .header::after {
+      content: '';
+      position: absolute;
+      right: -20px; top: -20px;
+      width: 100px; height: 100px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 50%;
+    }
+    .logo {
+      font-family: 'Fredoka One', cursive;
+      font-size: 24px;
+      color: #fff;
+      text-shadow: 2px 2px 0 rgba(0,0,0,0.2);
+      letter-spacing: 0.5px;
+      line-height: 1;
+    }
+    .logo span { color: var(--sun); }
+    .badge {
+      background: rgba(255,255,255,0.25);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 20px;
+      letter-spacing: 0.5px;
+    }
+    .header-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .settings-btn {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: #fff;
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 16px;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s;
+    }
+    .settings-btn:hover { background: rgba(255,255,255,0.35); }
+
+    /* ── Tabs ── */
+    .tabs {
+      display: flex;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+    }
+    .tab {
+      flex: 1;
+      padding: 10px 0;
+      text-align: center;
+      font-weight: 700;
+      font-size: 12px;
+      color: var(--muted);
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+      letter-spacing: 0.3px;
+    }
+    .tab.active {
+      color: var(--sky);
+      border-bottom-color: var(--sky);
+    }
+    .tab:hover:not(.active) { color: var(--text); }
+
+    /* ── Panels ── */
+    .panel { display: none; padding: 16px; }
+    .panel.active { display: block; }
+
+    /* ── API Key section ── */
+    .api-bar {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .api-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #ff4444;
+      flex-shrink: 0;
+      transition: background 0.3s;
+    }
+    .api-dot.connected { background: var(--mint); box-shadow: 0 0 6px var(--mint); }
+    .api-status-text {
+      font-size: 12px;
+      color: var(--muted);
+      flex: 1;
+    }
+    .api-link {
+      font-size: 11px;
+      color: var(--sky);
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    /* ── Form elements ── */
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 6px;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+    }
+    textarea, input[type="text"], input[type="password"], select {
+      width: 100%;
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 13px;
+      resize: none;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    textarea:focus, input:focus, select:focus {
+      border-color: var(--sky);
+    }
+    select option { background: var(--deep); }
+    .form-group { margin-bottom: 14px; }
+
+    /* ── Mode pills ── */
+    .mode-pills {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+    .pill {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1.5px solid var(--border);
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s;
+      background: transparent;
+    }
+    .pill.active, .pill:hover {
+      background: var(--sky);
+      border-color: var(--sky);
+      color: var(--deep);
+    }
+    .pill.active { box-shadow: 0 0 10px rgba(77,200,245,0.4); }
+
+    /* ── Buttons ── */
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.3px;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--sky), var(--sky2));
+      color: var(--deep);
+      box-shadow: 0 4px 15px rgba(77,200,245,0.3);
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(77,200,245,0.45); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .btn-secondary {
+      background: var(--card);
+      color: var(--text);
+      border: 1.5px solid var(--border);
+    }
+    .btn-secondary:hover { border-color: var(--sky); color: var(--sky); }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #ff6680, #c94fff);
+      color: #fff;
+    }
+
+    /* ── Output box ── */
+    .output-wrap {
+      margin-top: 14px;
+      display: none;
+    }
+    .output-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .output-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .copy-btn {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--sky);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 2px 8px;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+    .copy-btn:hover { background: rgba(77,200,245,0.15); }
+
+    .output-box {
+      background: #0e1128;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 12.5px;
+      line-height: 1.7;
+      max-height: 240px;
+      overflow-y: auto;
+      color: var(--text);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .output-box::-webkit-scrollbar { width: 4px; }
+    .output-box::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    /* scratch block style */
+    .block-tag {
+      display: inline-block;
+      background: #ff6680;
+      color: #fff;
+      padding: 1px 7px;
+      border-radius: 5px;
+      font-size: 11px;
+      font-weight: 700;
+      margin: 1px 2px;
+    }
+    .block-tag.motion { background: #4c97ff; }
+    .block-tag.looks { background: #9966ff; }
+    .block-tag.sound { background: #cf63cf; }
+    .block-tag.events { background: #ffab19; }
+    .block-tag.control { background: #ffab19; }
+    .block-tag.sensing { background: #5cb1d6; }
+    .block-tag.operators { background: #59c059; }
+    .block-tag.variables { background: #ff8c1a; }
+
+    /* ── Loading ── */
+    .loader {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 14px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .loader.show { display: flex; }
+    .dot-bounce {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--sky);
+      animation: bounce 1s infinite;
+    }
+    .dot-bounce:nth-child(2) { animation-delay: 0.15s; background: var(--cat); }
+    .dot-bounce:nth-child(3) { animation-delay: 0.3s; background: var(--mint); }
+    @keyframes bounce {
+      0%, 80%, 100% { transform: scale(0.7); opacity: 0.5; }
+      40% { transform: scale(1.2); opacity: 1; }
+    }
+
+    /* ── History panel ── */
+    .history-empty {
+      text-align: center;
+      color: var(--muted);
+      padding: 40px 20px;
+      font-size: 13px;
+    }
+    .history-empty .big { font-size: 36px; margin-bottom: 10px; }
+    .history-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .history-item:hover { border-color: var(--sky); }
+    .history-prompt {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .history-meta {
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .clear-history {
+      margin-top: 10px;
+    }
+
+    /* ── Settings panel ── */
+    .settings-section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+    .settings-title {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--text);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--mint);
+      color: var(--deep);
+      font-weight: 800;
+      font-size: 12px;
+      padding: 8px 18px;
+      border-radius: 20px;
+      opacity: 0;
+      transition: all 0.3s;
+      pointer-events: none;
+      z-index: 9999;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ── Tip box ── */
+    .tip {
+      background: rgba(77,200,245,0.08);
+      border: 1px solid rgba(77,200,245,0.2);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
+    .tip strong { color: var(--sky); }
+
+    .char-count {
+      text-align: right;
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="logo">Scratch<span>AI</span></div>
+    <div style="font-size:11px; color:rgba(255,255,255,0.75); margin-top:2px;">ChatGPT-powered Scratch coder</div>
+  </div>
+  <div class="header-right">
+    <div class="badge">GPT-4o</div>
+  </div>
+</div>
+
+<!-- API Status Bar -->
+<div style="padding: 10px 16px 0;">
+  <div class="api-bar">
+    <div class="api-dot" id="apiDot"></div>
+    <div class="api-status-text" id="apiStatusText">No API key set</div>
+    <a href="#" class="api-link" id="apiKeyShortcut">Set key →</a>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <div class="tab active" data-tab="generate">✨ Generate</div>
+  <div class="tab" data-tab="fix">🔧 Fix</div>
+  <div class="tab" data-tab="history">📋 History</div>
+  <div class="tab" data-tab="settings">⚙️ Settings</div>
+</div>
+
+<!-- GENERATE PANEL -->
+<div class="panel active" id="panel-generate">
+  <div class="tip">
+    <strong>Tip:</strong> Describe what you want your Scratch project to do. Be specific about sprites, movement, sounds, and conditions!
+  </div>
+
+  <div class="form-group">
+    <label>What should your Scratch project do?</label>
+    <textarea id="generatePrompt" rows="4" placeholder="e.g. Make a cat sprite that walks back and forth, plays a meow sound when you click it, and says 'Hello!' for 2 seconds..."></textarea>
+    <div class="char-count"><span id="charCount">0</span> / 600</div>
+  </div>
+
+  <div class="form-group">
+    <label>Complexity Level</label>
+    <div class="mode-pills">
+      <button class="pill active" data-level="beginner">🌱 Beginner</button>
+      <button class="pill" data-level="intermediate">🚀 Intermediate</button>
+      <button class="pill" data-level="advanced">⚡ Advanced</button>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>Project Type</label>
+    <select id="projectType">
+      <option value="general">🎮 General / Game</option>
+      <option value="animation">🎬 Animation / Story</option>
+      <option value="interactive">🖱️ Interactive (click/keyboard)</option>
+      <option value="simulation">🌍 Simulation</option>
+      <option value="music">🎵 Music / Sound</option>
+      <option value="quiz">❓ Quiz / Educational</option>
+    </select>
+  </div>
+
+  <button class="btn btn-primary" id="generateBtn">✨ Generate Scratch Code</button>
+
+  <div class="loader" id="generateLoader">
+    <div class="dot-bounce"></div>
+    <div class="dot-bounce"></div>
+    <div class="dot-bounce"></div>
+    <span>ChatGPT is coding...</span>
+  </div>
+
+  <div class="output-wrap" id="generateOutput">
+    <div class="output-header">
+      <span class="output-label">📦 Scratch Instructions</span>
+      <button class="copy-btn" id="copyGenerate">Copy</button>
+    </div>
+    <div class="output-box" id="generateResult"></div>
+  </div>
+</div>
+
+<!-- FIX PANEL -->
+<div class="panel" id="panel-fix">
+  <div class="tip">
+    <strong>Tip:</strong> Paste your Scratch block code or describe what's broken. ChatGPT will diagnose and fix it!
+  </div>
+
+  <div class="form-group">
+    <label>Describe the problem</label>
+    <textarea id="fixProblem" rows="3" placeholder="e.g. My sprite keeps glitching off screen when it touches the edge..."></textarea>
+  </div>
+
+  <div class="form-group">
+    <label>Your current Scratch code (optional)</label>
+    <textarea id="fixCode" rows="4" placeholder="Paste your block descriptions here, e.g.&#10;when green flag clicked&#10;forever&#10;  move 10 steps&#10;  if on edge, bounce"></textarea>
+  </div>
+
+  <button class="btn btn-primary" id="fixBtn">🔧 Fix My Code</button>
+
+  <div class="loader" id="fixLoader">
+    <div class="dot-bounce"></div>
+    <div class="dot-bounce"></div>
+    <div class="dot-bounce"></div>
+    <span>Analyzing the bug...</span>
+  </div>
+
+  <div class="output-wrap" id="fixOutput">
+    <div class="output-header">
+      <span class="output-label">🔧 Fixed Code</span>
+      <button class="copy-btn" id="copyFix">Copy</button>
+    </div>
+    <div class="output-box" id="fixResult"></div>
+  </div>
+</div>
+
+<!-- HISTORY PANEL -->
+<div class="panel" id="panel-history">
+  <div id="historyContainer">
+    <div class="history-empty">
+      <div class="big">📋</div>
+      <div>No history yet!</div>
+      <div style="margin-top:6px; font-size:12px;">Your generated code will appear here.</div>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS PANEL -->
+<div class="panel" id="panel-settings">
+  <div class="settings-section">
+    <div class="settings-title">🔑 OpenAI API Key</div>
+    <div class="form-group">
+      <label>Your API Key</label>
+      <input type="password" id="apiKeyInput" placeholder="sk-proj-..."/>
+    </div>
+    <div style="font-size:11px; color: var(--muted); margin-bottom: 12px; line-height:1.5;">
+      Get your key at <a href="https://platform.openai.com/api-keys" target="_blank" style="color:var(--sky)">platform.openai.com/api-keys</a>. Your key is stored locally and never sent anywhere except OpenAI.
+    </div>
+    <button class="btn btn-primary" id="saveApiKey">💾 Save API Key</button>
+  </div>
+
+  <div class="settings-section">
+    <div class="settings-title">🤖 Model Settings</div>
+    <div class="form-group">
+      <label>GPT Model</label>
+      <select id="modelSelect">
+        <option value="gpt-4o">GPT-4o (Recommended)</option>
+        <option value="gpt-4o-mini">GPT-4o Mini (Faster / Cheaper)</option>
+        <option value="gpt-4-turbo">GPT-4 Turbo</option>
+        <option value="gpt-3.5-turbo">GPT-3.5 Turbo (Budget)</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Response Style</label>
+      <select id="styleSelect">
+        <option value="detailed">📚 Detailed with explanations</option>
+        <option value="concise">⚡ Concise code only</option>
+        <option value="educational">🎓 Educational (great for kids)</option>
+      </select>
+    </div>
+    <button class="btn btn-primary" id="saveSettings">💾 Save Settings</button>
+  </div>
+
+  <div class="settings-section">
+    <div class="settings-title">ℹ️ About</div>
+    <div style="font-size:12px; color:var(--muted); line-height:1.6;">
+      <strong style="color:var(--text)">ScratchAI v1.0</strong><br/>
+      Uses ChatGPT to generate step-by-step Scratch block code. Works on scratch.mit.edu.<br/><br/>
+      Made with ❤️ for young coders everywhere.
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="popup.js"></script>
+</body>
+</html>
